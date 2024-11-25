@@ -1,11 +1,10 @@
 from flask import Flask, request, jsonify
+import matplotlib.pyplot as plt
 import sqlite3
 
 app = Flask(__name__)
 
-
 DATABASE = "contaminacion.db" ## nombre base de datos
-
 
 def init_db():
     conn = sqlite3.connect(DATABASE)
@@ -22,7 +21,6 @@ def init_db():
     """)
     conn.commit()
     conn.close()
-
 
 @app.route('/data', methods=['POST'])
 def receive_data():
@@ -43,6 +41,25 @@ def receive_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/data', methods=['GET'])
+def get_data():
+    try:
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM T_Conta ORDER BY timestamp DESC")
+        rows = cursor.fetchall()
+        conn.close()
+
+        # enviarlos como JSON
+        data = [
+            {"id": row[0], "nodo": row[1], "d01": row[2], "d25": row[3], "d10": row[4], "timestamp": row[5]}
+            for row in rows
+        ]
+
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
-    init_db() 
+    init_db()
     app.run(debug=True)
