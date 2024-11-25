@@ -22,7 +22,7 @@ def inicializar_bd():
         """)
         conn.commit()
 
-def convertir_a_blob(imagen):
+def blob(imagen):
     _, buffer = cv2.imencode('.jpg', imagen)
     return buffer.tobytes()
 
@@ -36,8 +36,13 @@ def upload_image():
 
     file_bytes = np.frombuffer(archivo_imagen.read(), np.uint8)
     imagen = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-
     canal_b, canal_g, canal_r = cv2.split(imagen)
+    img_canal_r = np.zeros_like(imagen)
+    img_canal_r[:, :, 2] = canal_r  
+    img_canal_g = np.zeros_like(imagen)
+    img_canal_g[:, :, 1] = canal_g  
+    img_canal_b = np.zeros_like(imagen)
+    img_canal_b[:, :, 0] = canal_b  
     imagen_gris = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
 
     with sqlite3.connect(DB_PATH) as conn:
@@ -46,14 +51,13 @@ def upload_image():
             INSERT INTO T_Img (original, canal_r, canal_g, canal_b, canal_gris)
             VALUES (?, ?, ?, ?, ?)
         """, (
-            convertir_a_blob(imagen),
-            convertir_a_blob(canal_r),
-            convertir_a_blob(canal_g),
-            convertir_a_blob(canal_b),
-            convertir_a_blob(imagen_gris)
+            blob(imagen),       
+            blob(img_canal_r), 
+            blob(img_canal_g), 
+            blob(img_canal_b),
+            blob(imagen_gris)  
         ))
         conn.commit()
-
     return f"Imagen {imagen_nombre} procesada y almacenada", 200
 
 if __name__ == "__main__":
