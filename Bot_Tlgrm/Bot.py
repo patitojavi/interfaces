@@ -16,11 +16,8 @@ def get_datos():
         respuesta = requests.get(URL_SERVIDOR)  
         respuesta.raise_for_status() 
         datos = respuesta.json() 
-
-        # Filtra obtener registros del nodo 'N2'
-        datos_nodo = [registro for registro in datos if registro['nodo'] == 'N2']
         
-        return datos_nodo[-100:]  # Retorna los últimos 100 registros
+        return datos[-100:]  # Retorna los últimos 100 registros
 
     except requests.exceptions.RequestException as e:
         print(f"Error al obtener los datos: {e}")

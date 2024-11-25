@@ -2,7 +2,6 @@ from flask import Flask, request
 import sqlite3
 import cv2
 import numpy as np
-import io
 
 app = Flask(__name__)
 

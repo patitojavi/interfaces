@@ -46,11 +46,13 @@ def get_data():
     try:
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM T_Conta ORDER BY timestamp DESC")
+        
+        # Filtrar los datos del nodo 'N2'
+        cursor.execute("SELECT * FROM T_Conta WHERE nodo = 'N2' ORDER BY timestamp DESC")
         rows = cursor.fetchall()
         conn.close()
 
-        # enviarlos como JSON
+        # Formatear los resultados para enviarlos como JSON
         data = [
             {"id": row[0], "nodo": row[1], "d01": row[2], "d25": row[3], "d10": row[4], "timestamp": row[5]}
             for row in rows
